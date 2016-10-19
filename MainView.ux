@@ -1,0 +1,72 @@
+<App>
+	<UserEvent ux:Name="onBigPicture" />
+	<OnUserEvent EventName="onBigPicture" Handler="{goBig}" />
+	<JavaScript>
+		
+		var Observable = require("FuseJS/Observable");
+
+		var result = Observable();
+		var big = Observable();
+
+		fetch('https://api.randomuser.me/?results=20&inc=name,picture,id').then(function(response) {
+			return response.json();
+		}).then(function(resultado) {
+			result.value = resultado;
+		});
+
+		function goBig(args) {
+			big.value = args.big;
+			router.push("picture");
+		}
+
+		function volver() {
+			router.goBack();
+		}
+
+		module.exports = {
+			result: result,
+			goBig: goBig,
+			volver: volver,
+			big: big
+		}
+
+
+	</JavaScript>
+
+	<Router ux:Name="router" />
+	<Navigator DefaultTemplate="main">
+		<Page ux:Template="main">
+			<Panel Alignment="TopCenter" Background="#000080" Width="100%" Height="55" Padding="10">
+				<Text Color="#fff" FontSize="28" Alignment="Center" Value="Usuarios" />
+			</Panel>
+			<ScrollView Margin="0,55,0,0">
+				<Grid ColumnCount="2">
+					<Each Items="{result.results}">
+						<Panel>
+							<Image Url="{picture.medium}" Alignment="Left" />
+							<Text Value="{name.first}" Alignment="CenterRight" Margin="5" />
+							<Clicked>
+								<RaiseUserEvent EventName="onBigPicture">
+									<UserEventArg Name="big" Value="{picture.large}" />
+								</RaiseUserEvent>
+							</Clicked>
+						</Panel>
+					</Each>
+				</Grid>
+			</ScrollView>
+			
+		</Page>
+		<Page ux:Template="picture">
+			<Panel Alignment="TopCenter" Background="#000080" Width="100%" Height="55" Padding="10">
+				<Text Color="#fff" FontSize="28" Alignment="Center" Value="Usuario" />
+				<Text FontSize="16" Value="&lt; Volver">
+					<Clicked>
+						<Callback Handler="{volver}" />
+					</Clicked>
+				</Text>
+			</Panel>	
+			<Image Url="{big}" />		
+		</Page>
+	</Navigator>
+
+</App>
